@@ -1,0 +1,46 @@
+environment:
+  boundary:
+  workshop:
+  water:
+    _require: bridge
+    _consume: true
+
+primitives:
+  gem:
+    num: 1
+    _surround: water
+    _require: stoneaxe
+
+  grass:
+    num: 1
+
+  wood:
+    num: 4
+
+  stone:
+    num: 1
+    _require: woodaxe
+
+recipes:
+  stick:
+    wood: 1
+    _at: workshop
+
+  woodaxe:
+    wood: 1
+    stick: 1
+    _at: workshop
+
+  stoneaxe:
+    stone: 1
+    stick: 1
+    _at: workshop
+
+  rope:
+    grass: 1
+    _at: workshop
+
+  bridge:
+    wood: 1
+    rope: 1
+    _at: workshop

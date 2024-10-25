@@ -1,0 +1,85 @@
+environment:
+  boundary:
+  workshop:
+  furnace:
+  water:
+    _require: bridge
+    _consume: true
+
+primitives:
+  diamond:
+    num: 1
+    _surround: water
+    _require: ironaxe
+
+  grass:
+    num: 1
+
+  wood:
+    num: 6
+
+  stone:
+    num: 3
+    _require: woodaxe
+
+  iron:
+    num: 1
+    _require: stoneaxe
+
+recipes:
+  stick:
+    wood: 1
+    _at: workshop
+
+  woodaxe:
+    wood: 1
+    stick: 1
+    _at: workshop
+
+  stoneaxe:
+    stone: 1
+    stick: 1
+    _at: workshop
+
+  furnace:
+    stone: 2
+    _at: workshop
+
+  ironaxehead:
+    iron: 1
+    wood: 1
+    _step: 4
+    _at: furnace
+
+  ironaxe:
+    ironaxehead: 1
+    stick: 1
+    _at: workshop
+
+  rope:
+    grass: 1
+    _at: workshop
+
+  bridge:
+    wood: 1
+    rope: 1
+    _at: workshop
+
+  # bowl:
+  #   stone: 1
+  #   wood: 1
+  #   _step: 2
+  #   _at: furnace
+
+  # cloth:
+  #   grass: 1
+  #   _at: workshop
+
+  # plank:
+  #   wood: 1
+  #   _at: workshop
+
+  # bed:
+  #   plank: 1
+  #   grass: 1
+  #   _at: workshop

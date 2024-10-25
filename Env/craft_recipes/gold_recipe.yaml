@@ -1,0 +1,41 @@
+environment:
+  boundary:
+  workshop:
+  rock:
+    _require: woodaxe
+    _consume: false
+
+primitives:
+  gold:
+    num: 1
+    _surround: rock
+    _require: stoneaxe
+
+  grass:
+    num: 1
+
+  wood:
+    num: 3
+
+  stone:
+    num: 1
+    _require: woodaxe
+
+recipes:
+  stick:
+    wood: 1
+    _at: workshop
+
+  woodaxe:
+    wood: 1
+    stick: 1
+    _at: workshop
+
+  stoneaxe:
+    stone: 1
+    stick: 1
+    _at: workshop
+
+  rope:
+    grass: 1
+    _at: workshop
