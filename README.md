@@ -6,7 +6,7 @@
 1. Install required packages:
     ```
     conda create -y -n skild python=3.8
-    pip -r requirements.txt
+    pip install -r requirements.txt
     ```
 2. Install mini-behavior following instructions in  https://github.com/JiahengHu/mini-behavior-ihrl.
 
