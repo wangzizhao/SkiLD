@@ -1,0 +1,297 @@
+info: "cleaning_car_cmi"
+sub_dirname: "cleaning_car_cmi"
+alt_path: ""
+seed: 0
+cuda_id: 0
+defaults:                                       # import config for each env, adjust in configs/env/env_name.yaml
+    - _self_
+    - env:
+          - mini_behavior
+          - igibson
+          - craft_world
+env:
+    env_name: "cleaning_car"                    # "installing_printer", "thawing", "cleaning_car", "igibson", "test"
+    task_name: "clean_rag"                      # "install_printer",
+                                                # "thaw_fish","thaw_date","thaw_olive","thaw_any_two","thaw_all",
+                                                # "soak_rag","clean_car","clean_rag"
+                                                # "fruit","fruit_sink","knife","knife_sink","knife_fruit","knife_fruit_sink"
+    render: false
+    num_train_envs: 20
+    num_test_envs: 10
+    evaluate_graph: true
+load:
+    load_dynamics: ""
+    load_policy: ""
+    load_rpb: false
+    load_lower_replay_buffer: ""
+    load_upper_replay_buffer: ""
+save:
+    save_gif_num: 0                             # 0 for not saving gif
+    save_replay_buffer: false
+    save_freq: 10
+train:
+    mode: "skill_learning"                      # "skill_learning", "task_learning_lower_frozen"
+    epoch: 200
+    init_random_step: 10000                     # random upper and lower actions, no learning
+    init_upper_random_step: 0                   # random upper actions, lower actions from policy, lower policy learns
+    dynamics_pretrain_step: 0                   # if nonzero, takes max of this and init_random step for pretraining
+    dynamics_warmup_step: 300000                # only dynamics learns, no training for policy and diayn, reset to 0 if using gt
+    env_step_per_epoch: 100000
+    env_step_per_collect: 100000
+    policy_update_per_env_step: 0.2
+    diayn_update_per_env_step: 0.05
+    dynamics_update_per_env_step: 0.2
+    upper_policy_batch_size: 1024
+    lower_policy_batch_size: 64
+    diayn_batch_size: 128
+    dynamics_batch_size: 128
+    test_ep_per_epoch: 10
+    reset:
+        upper:
+            reset_freq: 0                       # measured in epoch, 0 for not using
+        lower:
+            reset_freq: 0                       # measured in epoch, 0 for not using
+            reset_diayn: true
+            warmup_env_step: 200000             # do not update upper policy during after-reset warmup
+graph_encoding:
+    num_edge_classes: 2
+dynamics:
+    type: "grad"                                # grad, gt, TODO: JACI, Null
+    ac:
+        dynamics_config_path: ""                # if using AC dynamics, this must be used
+        infer_graph_type: "hard"                # the way to infer graphs sent in
+    grad:
+        lr: 3e-4
+        grad_clip_norm: 5
+        local_causality_type: "cmi"             # gradient, cmi
+        pred_granularity: "factor"              # variable, macro_variable, factor
+        gradient:
+            grad_reg_coef: 0
+            local_causality_threshold: 2e-3
+        mixup_alpha: 0.5                        # 0 for not using
+        classification_correct_threshold: 0.05
+        regression_correct_threshold: 0.1
+        cmi_threshold: 0.02
+        feature_fc_dims: [128, 128]
+        predictor_fc_dims: []
+        attn:
+            num_attns: 1
+            residual: true
+            attn_dim: 32
+            num_heads: 4
+            attn_out_dim: 128
+            attn_use_bias: false
+            share_weight_across_kqv: true
+            post_fc_dims: [128, 128]
+option:
+    timeout: 20
+    target_goal_epsilon: 0.1
+    update_schedule_frequency: 1                        # frequency of updating per update count
+    upper:
+        # for graph count reward during skill learning
+        graph_count_power: -0.5
+        use_factor_subgraph: true
+        graph_novelty_scale: 1
+        use_graph_reachability: false
+        rew_aggregation: "sum"                          # "max", "sum"
+    lower:
+        graph_reward_scale: 1
+        diayn_scale: 0.5
+        goal_scale: 1                                   # reward to give goal reaching
+        use_reached_graph_counter: true
+        training_ignore_lower_done: false
+        reached_graph_threshold: 1
+        use_count_reward: false
+        count_reward_scale: 1
+        diayn_graph_conditioned: true
+        reached_graph_negative_constant: -1.0
+        schedule:
+            reached_graph_schedule: 0                   # 0 for not using
+            state_count_schedule: 0
+            update_count_schedule: 0
+            schedule_rew_scale_min: 0
+        adaptive:
+            adaptive_diayn_coef: 0.75                   # -1 for not using, otherwise, 0 < adaptive_diayn_coef < 1
+            history_stats_size: 200
+            adaptive_scale_factor: 1                    # not used for now
+            adaptive_reaching: false                    # not used for now
+data:
+    buffer_len: 3000000
+    count_threshold_for_valid_graph: 20                 # 0 for not using
+    her:
+        upper:
+            use_her: true                               # will be overwritten to false if env is not goal-based
+            her_horizon: 10
+            future_k: 8
+        lower:
+            use_her: true
+            her_use_count_select_goal: true
+            her_use_diayn_posterior: false
+            future_k: 8
+    prio:
+        upper_prio: true
+        lower_prio: true
+        dynamics_prio: true
+        beta: 0.4
+        weight_norm: true
+        dynamics:
+            alpha: 0.6
+            pred_error_scale: 1.0
+            change_count_scale: 1.0
+        upper_policy:
+            alpha: 0.6
+            decay_window: 5                             # Prioritized Sequence Experience Replay parameters
+            decay_rate: 0.4                             # https://arxiv.org/pdf/1905.12726.pdf
+            max_prev_decay: 0.7                         # set decay_window to 0 to disable
+        lower_policy:
+            # to uniformly sampling different graphs, set alpha: 1 and graph_count_power: -1
+            alpha: 0.4
+            td_error_scale: 2.0
+            graph_count_power: -1.0
+            graph_count_scale: 1.0
+            decay_window: 5                             # Prioritized Sequence Experience Replay parameters for lower
+            decay_rate: 0.4
+            max_prev_decay: 0.7
+policy:
+    net_config_path: ""
+    net_config_name: "network"
+    upper:
+        type: "modular"                                 # "modular", "wide"
+        graph_type: "factor"                            # "graph", "factor", "none"
+        goal_type: "diayn"                              # "diayn", "value"
+        fixed_graph: false
+        graph_action_space: "choose_from_history"       # "sample_from_history", "graph_encoding", "choose_from_history"
+        add_count_based_lower: false                    # add count based exploration lower into wide lower
+        sample_action_space_n: 256
+        goal_learned: false
+        random_eps: 0.0
+        discrete_algo: "ppo"                            # "dqn", "rainbow", "ppo"
+        continuous_algo: "ppo"                          # "ddpg", "td3", "sac", "ppo"
+        gamma: 0.99
+        n_step: 1
+        reward_type: "graph_count"                      # "special", "graph_count", "task"
+        diayn:
+            num_classes: 4
+            wide_diayn: false
+            spectral_norm: true
+            hidden_dim: 512
+            use_state: false
+            on_policy_update: false
+            lr: 1e-4
+            norm_form: none
+            acti_form: relu
+        rainbow:
+            lr: 1e-4
+            hidden_sizes: [512, 512]
+            num_atoms: 51
+            v_min: -2
+            v_max: 2
+            target_update_freq: 500
+            eps: 0.3
+            norm_form: none
+            acti_form: relu
+        ddpg:
+            hidden_sizes: [512, 512]
+            actor_lr: 1e-4
+            critic_lr: 1e-4
+            tau: 0.005
+            exploration_noise: 0.1
+            norm_form: none
+            acti_form: relu
+        td3:
+            hidden_sizes: [512, 512]
+            actor_lr: 1e-4
+            critic_lr: 1e-4
+            tau: 0.005
+            exploration_noise: 0.1
+            policy_noise: 0.2
+            update_actor_freq: 2
+            noise_clip: 0.5
+            norm_form: none
+            acti_form: relu
+        sac:
+            hidden_sizes: [512, 512]
+            conditioned_sigma: true
+            actor_lr: 1e-4
+            critic_lr: 1e-4
+            tau: 0.005
+            alpha: 0.2
+            auto_alpha: false
+            alpha_lr: 3e-4
+            norm_form: none
+            acti_form: relu
+        ppo:
+            hidden_sizes: [512, 512]
+            conditioned_sigma: true
+            lr: 1e-4
+            eps_clip: 0.1
+            recompute_advantage: true
+            gae_lambda: 0.95
+            max_grad_norm: 0.5
+            vf_coef: 1
+            ent_coef: 0.1
+            rew_norm: true
+            repeat_per_collect: 1
+            norm_form: none
+            acti_form: relu
+    lower:
+        type: "wide"                        # "single_graph", "wide"
+        scripted: false
+        discrete_algo: "rainbow"            # "dqn", "rainbow", "ppo"
+        continuous_algo: "ddpg"              # "ddpg", "td3", "sac", "ppo"
+        gamma: 0.9
+        n_step: 3
+        rainbow:
+            lr: 3e-4
+            hidden_sizes: [512, 512]
+            num_atoms: 51
+            v_min: -10
+            v_max: 10
+            target_update_freq: 500
+            eps: 0.2
+            norm_form: none
+            acti_form: relu
+        ddpg:
+            hidden_sizes: [512, 512]
+            actor_lr: 1e-4
+            critic_lr: 1e-4
+            tau: 0.005
+            exploration_noise: 0.1
+            norm_form: none
+            acti_form: relu
+        td3:
+            hidden_sizes: [512, 512]
+            actor_lr: 1e-4
+            critic_lr: 1e-4
+            tau: 0.005
+            exploration_noise: 0.1
+            policy_noise: 0.2
+            update_actor_freq: 2
+            noise_clip: 0.5
+            norm_form: none
+            acti_form: relu
+        sac:
+            hidden_sizes: [512, 512]
+            conditioned_sigma: true
+            actor_lr: 1e-4
+            critic_lr: 1e-4
+            tau: 0.005
+            alpha: 0.2
+            auto_alpha: false
+            alpha_lr: 3e-4
+            norm_form: none
+            acti_form: relu
+        ppo:
+            hidden_sizes: [512, 512]
+            conditioned_sigma: true
+            lr: 3e-4
+            eps_clip: 0.2
+            recompute_advantage: true
+            gae_lambda: 0.95
+            max_grad_norm: 0.5
+            vf_coef: 1
+            ent_coef: 0.3
+            rew_norm: true
+            repeat_per_collect: 3
+            norm_form: none
+            acti_form: relu

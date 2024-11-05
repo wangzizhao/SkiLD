@@ -1,0 +1,77 @@
+igibson:
+    # scene
+    scene: igibson
+    scene_id: Rs_int
+    clutter: false
+    build_graph: false
+    load_texture: true
+    pybullet_load_texture: false
+    should_open_all_doors: false
+
+    # domain randomization
+    texture_randomization_freq: null
+    object_randomization_freq: null
+
+    # robot
+    robot:
+        name: Fetch
+        action_type: continuous
+        action_normalize: true
+        proprio_obs: ["robot_pos", "robot_quat", "robot_lin_vel", "robot_ang_vel", "eef_0_pos", "eef_0_quat", "grasp_0"]
+        base_name: null
+        scale: 1.0
+        self_collision: true
+        rendering_params: null
+        grasping_mode: sticky
+        rigid_trunk: false
+        default_trunk_offset: 0.365
+        default_arm_pose: diagonal30
+        controller_config:
+            base:
+                name: DifferentialDriveController
+            arm_0:
+                name: InverseKinematicsController
+                kv: 2.0
+            gripper_0:
+                name: MultiFingerGripperController
+                mode: binary
+            camera:
+                name: JointController
+                use_delta_commands: False
+
+    # added for speed up
+    load_room_types: "kitchen"
+    not_load_object_categories: ["ceilings", "pop", "oven", "mug", "trash_can"]
+
+    # To fix object from moving
+    fixed_all_obj: false
+
+    # task
+    task: bottling_fruit
+    task_id: 0
+    instance_id: 0
+    online_sampling: false
+    use_skill_task: true
+
+    # discount factor
+    discount_factor: 0.99
+
+    # termination condition
+    max_step: 1000
+
+    # sensor spec
+    output: [proprioception, task_obs]  # proprioception, rgb, highlight, depth, seg, ins_seg,
+    # image
+    fisheye: false
+    image_width: 512
+    image_height: 512
+    vertical_fov: 120
+    # depth
+    depth_low: 0.0
+    depth_high: 10.0
+
+    # sensor noise
+    depth_noise_rate: 0.0
+    scan_noise_rate: 0.0
+
+    hide_robot: false

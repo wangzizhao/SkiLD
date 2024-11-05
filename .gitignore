@@ -5,12 +5,10 @@ data
 replay_buffer
 *.out
 *.p
-*.txt
 *.png
 *plots
 outputs
 UnitTests/Data/*
-configs/*
 bashes/*
 perf_test.py
 *.profile

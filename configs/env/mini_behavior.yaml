@@ -1,0 +1,17 @@
+mini_behavior:
+    discrete_obs: true
+    installing_printer:
+        room_size: 8
+        max_steps: 150
+        use_stage_reward: false
+        random_obj_pose: false
+    thawing:
+        room_size: 10
+        max_steps: 300
+        use_stage_reward: false
+        random_obj_pose: false
+    cleaning_car:
+        room_size: 10
+        max_steps: 300
+        use_stage_reward: false
+        random_obj_pose: false

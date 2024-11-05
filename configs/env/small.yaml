@@ -1,0 +1,4 @@
+env_name: "installing_printer"
+render: false
+num_train_envs: 2
+num_test_envs: 2

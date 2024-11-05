@@ -1,0 +1,11 @@
+array2gif
+easydict
+einops~=0.7.0
+gymnasium~=0.28.1
+hydra-core
+matplotlib
+numpy~=1.24.3
+omegaconf~=2.3.0
+torch~=2.0.1
+tianshou~=0.5.1
+scipy~=1.10.1

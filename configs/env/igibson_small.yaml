@@ -1,0 +1,4 @@
+env_name: "igibson"
+render: false
+num_train_envs: 8
+num_test_envs: 4

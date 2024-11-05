@@ -1,0 +1,7 @@
+craft_world:
+    goal: "gold"
+    use_stage_reward: false
+    width: 10
+    height: 10
+    must_craft_at_workspace: false
+    horizon: 500
